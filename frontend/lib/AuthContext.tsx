@@ -10,6 +10,7 @@ type AuthContextType = {
   signIn: (email: string, password: string) => Promise<void>
   signUp: (email: string, password: string) => Promise<void>
   signOut: () => Promise<void>
+  getUserId: () => Promise<string>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -46,6 +47,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(data.user)
   }
 
+  const getUserId = async () => {
+    const { data, error } = await supabase.auth.getUser()
+    if (error) throw error
+    return data.user.id
+  }
+
   const signUp = async (email: string, password: string) => {
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -60,7 +67,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null)
   }
 
-  const value = useMemo(() => ({ user, signIn, signUp, signOut }), [user, signIn, signUp, signOut])
+  const value = useMemo(() => ({ user, signIn, signUp, signOut, getUserId }), [user, signIn, signUp, signOut, getUserId])
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
