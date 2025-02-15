@@ -6,30 +6,49 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ArrowLeft, User, Plus } from "lucide-react"
 import { useI18N } from "@/lib/i18n"
-
-// Mock data for patients
-const patients = [
-  {
-    id: 1,
-    name: "John Doe",
-    dateOfBirth: "1980-05-15",
-    condition: "Post-cardiac surgery",
-    assignedAgent: "Cardiac Agent",
-  },
-  { id: 2, name: "Jane Smith", dateOfBirth: "1992-11-23", condition: "Diabetes", assignedAgent: "Diabetes Agent" },
-  {
-    id: 3,
-    name: "Alice Johnson",
-    dateOfBirth: "1975-08-30",
-    condition: "Post-hip replacement",
-    assignedAgent: "Orthopedic Agent",
-  },
-  { id: 4, name: "Bob Williams", dateOfBirth: "1988-03-12", condition: "Asthma", assignedAgent: "Respiratory Agent" },
-  { id: 5, name: "Carol Brown", dateOfBirth: "1970-01-25", condition: "Hypertension", assignedAgent: "Cardiac Agent" },
-]
+import { createBrowserSupabaseClient } from "@/lib/supabase"
+import { useAuth } from "@/lib/AuthContext"
+import { useEffect, useState } from "react"
 
 export default function PatientsPage() {
   const { t } = useI18N()
+  const { getUserId } = useAuth() // Assuming this returns the userID
+  const supabase = createBrowserSupabaseClient()
+
+  const [patients, setPatients] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchPatients = async () => {
+      const userID = await getUserId()
+      
+      if (!userID) {
+        setError("User not authenticated")
+        setLoading(false)
+        return
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from("patients")
+          .select("*")
+          .eq("docuuid", userID)
+
+        if (error) {
+          setError(error.message)
+        } else {
+          setPatients(data)
+        }
+      } catch {
+        setError("Failed to fetch patients")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchPatients()
+  }, [getUserId, supabase])
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -46,6 +65,8 @@ export default function PatientsPage() {
           </Button>
         </Link>
       </div>
+
+      {error && <p className="text-red-500">{error}</p>}
 
       <Card>
         <CardHeader>
@@ -66,21 +87,29 @@ export default function PatientsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {patients.map((patient) => (
-                <TableRow key={patient.id}>
-                  <TableCell>{patient.name}</TableCell>
-                  <TableCell>{patient.dateOfBirth}</TableCell>
-                  <TableCell>{patient.condition}</TableCell>
-                  <TableCell>{patient.assignedAgent}</TableCell>
-                  <TableCell>
-                    <Link href={`/dashboard/patients/${patient.id}`}>
-                      <Button variant="outline" size="sm">
-                        {t("viewDetails")}
-                      </Button>
-                    </Link>
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center">
+                    {t("loading")}
                   </TableCell>
                 </TableRow>
-              ))}
+              ) : (
+                patients.map((patient) => (
+                  <TableRow key={patient.id}>
+                    <TableCell>{patient.name}</TableCell>
+                    <TableCell>{patient.date_of_birth}</TableCell>
+                    <TableCell>{patient.condition}</TableCell>
+                    <TableCell>{patient.assigned_agent}</TableCell>
+                    <TableCell>
+                      <Link href={`/dashboard/patients/${patient.id}`}>
+                        <Button variant="outline" size="sm">
+                          {t("viewDetails")}
+                        </Button>
+                      </Link>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </CardContent>
@@ -88,4 +117,3 @@ export default function PatientsPage() {
     </div>
   )
 }
-

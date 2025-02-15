@@ -5,98 +5,45 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { PlusCircle, Bot, Brain, Activity, ArrowLeft } from "lucide-react"
 import { useI18N } from "@/lib/i18n"
-import { UUID } from "crypto"
 import { createBrowserSupabaseClient } from "@/lib/supabase"
 import { useEffect, useState } from "react"
 import { useAuth } from "@/lib/AuthContext"
 
-// Simulated function to get agents for a user
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const getAgentsForUser = async (userId: UUID) => {
-  // In a real application, this would fetch data from an API or database
+// Fetch agents for the user
+const getAgentsForUser = async (userId: string) => {
+  if (!userId) return []
+
   const supabase = createBrowserSupabaseClient()
-  const user = userId.toString()
+  console.log("Fetching agents for user:", userId)
 
-  console.log("Fetching agents for user", supabase.from("agents").select("*"))
+  const { data: supabaseData, error } = await supabase
+    .from("agents")
+    .select("*")
+    .eq("docuuid", userId)
 
-  const { data: supabaseData } = await supabase
-  .from("agents")
-  .select("*")
-  .eq("docuuid", user)
-
-  console.log("Supabase data", supabaseData)
-
-  if (supabaseData) {
-    console.log(supabaseData)
-    return supabaseData
+  if (error) {
+    console.error("Supabase error:", error)
+    return []
   }
 
-  return [
-    {
-      "id": "1",
-      "name": "Heart Failure Management Agent",
-      "type": "Specialized",
-      "description": "Monitors patients with heart failure, tracking symptoms and medication adherence.",
-      "patientCount": 22,
-      "alertsToday": 3
-    },
-    {
-      "id": "2",
-      "name": "Care Navigation Agent",
-      "type": "General",
-      "description": "Assists patients in navigating healthcare services and follow-up appointments.",
-      "patientCount": 18,
-      "alertsToday": 1
-    },
-    {
-      "id": "3",
-      "name": "Medication Management Agent",
-      "type": "Specialized",
-      "description": "Ensures proper medication adherence and tracks potential side effects.",
-      "patientCount": 30,
-      "alertsToday": 4
-    },
-    {
-      "id": "4",
-      "name": "Infectious Disease Monitoring Agent",
-      "type": "Specialized",
-      "description": "Tracks infectious disease symptoms and alerts for potential outbreaks.",
-      "patientCount": 16,
-      "alertsToday": 2
-    },
-    {
-      id: "5",
-      name: "Physical Therapy Agent",
-      type: "Specialized",
-      description: "Tracks patient progress in physical therapy exercises",
-      patientCount: 10,
-      alertsToday: 0,
-    },
-    {
-      id: "6",
-      name: "Mental Health Agent",
-      type: "Specialized",
-      description: "Monitors patient mental health and mood",
-      patientCount: 8,
-      alertsToday: 1,
-    }
-  ]
+  return supabaseData || []
 }
 
 export default function AgentsPage() {
   const { t } = useI18N()
-  const [agents, setAgents] = useState<any>([])
+  const [agents, setAgents] = useState<any[]>([])
   const { getUserId } = useAuth()
-  // In a real application, you would get the userId from an authentication context
-  // UUID userID
+
   useEffect(() => {
     const fetchAgents = async () => {
       const userId = await getUserId()
-      const agents = await getAgentsForUser(userId as UUID)
-      setAgents(agents)
+      if (userId) {
+        const agentsData = await getAgentsForUser(userId)
+        setAgents(agentsData)
+      }
     }
     fetchAgents()
-  }, [getUserId])
+  }, [])
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -115,7 +62,7 @@ export default function AgentsPage() {
         </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {agents.map((agent: { id: string; name: string; type: string; description: string; patientCount: number; alertsToday: number }) => (
+        {agents.map(agent => (
           <Card key={agent.id} className="hover:shadow-lg transition-shadow">
             <CardHeader className="bg-blue-50">
               <CardTitle className="flex items-center gap-2">
@@ -154,4 +101,3 @@ export default function AgentsPage() {
     </div>
   )
 }
-

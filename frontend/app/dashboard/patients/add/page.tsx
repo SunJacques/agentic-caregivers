@@ -1,6 +1,8 @@
 "use client"
 
-import { useState } from "react"
+// Import the CSS for react-phone-number-input
+import "react-phone-number-input/style.css"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import PhoneInput from "react-phone-number-input"
@@ -12,13 +14,26 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowLeft, UserPlus } from "lucide-react"
 import { useI18N } from "@/lib/i18n"
-
-// Import the CSS for react-phone-number-input
-import "react-phone-number-input/style.css"
+import { createBrowserSupabaseClient } from "@/lib/supabase"
+import { useAuth } from "@/lib/AuthContext"
 
 export default function AddPatient() {
   const router = useRouter()
   const { t } = useI18N()
+  const supabase = createBrowserSupabaseClient()
+  const { getUserId } = useAuth()
+
+  const [userID, setUserID] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchUserID = async () => {
+      const id = await getUserId()
+      setUserID(id)
+    }
+
+    fetchUserID()
+  }, [getUserId])
+
   const [patient, setPatient] = useState({
     name: "",
     dateOfBirth: "",
@@ -27,6 +42,9 @@ export default function AddPatient() {
     email: "",
     address: "",
   })
+
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -43,10 +61,30 @@ export default function AddPatient() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Here you would typically send the patient data to your API
-    console.log("New patient created:", patient)
-    // Redirect to the patients list page after creation
-    router.push("/dashboard/patients")
+    setLoading(true)
+    setError(null)
+
+    const { data, error } = await supabase
+      .from("patients")
+      .insert([{
+        docuuid: userID,
+        name: patient.name,
+        date_of_birth: patient.dateOfBirth,
+        gender: patient.gender,
+        contact_number: patient.contactNumber,
+        email: patient.email,
+        address: patient.address,
+      }])
+
+    if (error) {
+      console.error("Error adding patient:", error.message)
+      setError(error.message)
+    } else {
+      console.log("Patient created:", data)
+      router.push("/dashboard/patients") // Redirect to patients list
+    }
+
+    setLoading(false)
   }
 
   return (
@@ -127,11 +165,13 @@ export default function AddPatient() {
                 required
               />
             </div>
-            <Button type="submit">{t("createPatient")}</Button>
+            {error && <p className="text-red-500">{error}</p>}
+            <Button type="submit" disabled={loading}>
+              {loading ? t("creatingPatient") : t("createPatient")}
+            </Button>
           </form>
         </CardContent>
       </Card>
     </div>
   )
 }
-
