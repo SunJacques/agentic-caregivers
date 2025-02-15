@@ -170,8 +170,6 @@ export const I18NProvider: React.FC<I18NProviderProps> = ({ children }) => {
           markAsResolved: "Mark as Resolved",
           contactPatient: "Contact Patient",
           activeAlerts: "Active Alerts",
-          alertType: "Alert Type",
-          severity: "Severity",
 
           // Landing
           login: "Log In",
@@ -213,7 +211,6 @@ export const I18NProvider: React.FC<I18NProviderProps> = ({ children }) => {
           backToDashboard: "Back to Dashboard",
           assignNewPatient: "Assign New Patient",
           lastContact: "Last Contact",
-          alertId: "Alert ID",
           date: "Date",
           type: "Type",
           loading: "Loading...",
@@ -387,7 +384,6 @@ export const I18NProvider: React.FC<I18NProviderProps> = ({ children }) => {
           backToDashboard: "Retour au Tableau de Bord",
           assignNewPatient: "Assigner un Nouveau Patient",
           lastContact: "Dernier Contact",
-          alertId: "ID d'Alerte",
           date: "Date",
           type: "Type",
           loading: "Chargement...",
