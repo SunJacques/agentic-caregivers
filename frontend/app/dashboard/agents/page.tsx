@@ -8,91 +8,95 @@ import { useI18N } from "@/lib/i18n"
 import { UUID } from "crypto"
 import { createBrowserSupabaseClient } from "@/lib/supabase"
 import { useEffect, useState } from "react"
+import { useAuth } from "@/lib/AuthContext"
 
 // Simulated function to get agents for a user
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const getAgentsForUser = async (userId: UUID) => {
   // In a real application, this would fetch data from an API or database
   const supabase = createBrowserSupabaseClient()
+  const user = userId.toString()
 
   console.log("Fetching agents for user", supabase.from("agents").select("*"))
 
-  const { data, error } = await supabase.from("agents").select("*")
+  const { data: supabaseData } = await supabase
+  .from("agents")
+  .select("*")
+  .eq("docuuid", user)
 
-    if (error) {
-      console.error(error)
-      return []
+  console.log("Supabase data", supabaseData)
+
+  if (supabaseData) {
+    console.log(supabaseData)
+    return supabaseData
+  }
+
+  return [
+    {
+      "id": "1",
+      "name": "Heart Failure Management Agent",
+      "type": "Specialized",
+      "description": "Monitors patients with heart failure, tracking symptoms and medication adherence.",
+      "patientCount": 22,
+      "alertsToday": 3
+    },
+    {
+      "id": "2",
+      "name": "Care Navigation Agent",
+      "type": "General",
+      "description": "Assists patients in navigating healthcare services and follow-up appointments.",
+      "patientCount": 18,
+      "alertsToday": 1
+    },
+    {
+      "id": "3",
+      "name": "Medication Management Agent",
+      "type": "Specialized",
+      "description": "Ensures proper medication adherence and tracks potential side effects.",
+      "patientCount": 30,
+      "alertsToday": 4
+    },
+    {
+      "id": "4",
+      "name": "Infectious Disease Monitoring Agent",
+      "type": "Specialized",
+      "description": "Tracks infectious disease symptoms and alerts for potential outbreaks.",
+      "patientCount": 16,
+      "alertsToday": 2
+    },
+    {
+      id: "5",
+      name: "Physical Therapy Agent",
+      type: "Specialized",
+      description: "Tracks patient progress in physical therapy exercises",
+      patientCount: 10,
+      alertsToday: 0,
+    },
+    {
+      id: "6",
+      name: "Mental Health Agent",
+      type: "Specialized",
+      description: "Monitors patient mental health and mood",
+      patientCount: 8,
+      alertsToday: 1,
     }
-
-    // if (data) {
-    //   console.log(data)
-    //   return data
-    // }
-
-    return [
-      {
-        "id": "1",
-        "name": "Heart Failure Management Agent",
-        "type": "Specialized",
-        "description": "Monitors patients with heart failure, tracking symptoms and medication adherence.",
-        "patientCount": 22,
-        "alertsToday": 3
-      },
-      {
-        "id": "2",
-        "name": "Care Navigation Agent",
-        "type": "General",
-        "description": "Assists patients in navigating healthcare services and follow-up appointments.",
-        "patientCount": 18,
-        "alertsToday": 1
-      },
-      {
-        "id": "3",
-        "name": "Medication Management Agent",
-        "type": "Specialized",
-        "description": "Ensures proper medication adherence and tracks potential side effects.",
-        "patientCount": 30,
-        "alertsToday": 4
-      },
-      {
-        "id": "4",
-        "name": "Infectious Disease Monitoring Agent",
-        "type": "Specialized",
-        "description": "Tracks infectious disease symptoms and alerts for potential outbreaks.",
-        "patientCount": 16,
-        "alertsToday": 2
-      },
-      {
-        id: "5",
-        name: "Physical Therapy Agent",
-        type: "Specialized",
-        description: "Tracks patient progress in physical therapy exercises",
-        patientCount: 10,
-        alertsToday: 0,
-      },
-      {
-        id: "6",
-        name: "Mental Health Agent",
-        type: "Specialized",
-        description: "Monitors patient mental health and mood",
-        patientCount: 8,
-        alertsToday: 1,
-      }
-    ]
+  ]
 }
 
 export default function AgentsPage() {
   const { t } = useI18N()
   const [agents, setAgents] = useState<any>([])
+  const { getUserId } = useAuth()
   // In a real application, you would get the userId from an authentication context
   // UUID userID
-  const userId = "e2f2441e-cba1-45d4-9b0e-90fabcf4dcda"
-  
   useEffect(() => {
-      getAgentsForUser(userId).then((agents) => {
-        setAgents(agents)
-      })
-    }, [])
+    const fetchAgents = async () => {
+      const userId = await getUserId()
+      const agents = await getAgentsForUser(userId as UUID)
+      setAgents(agents)
+    }
+    fetchAgents()
+  }, [getUserId])
 
   return (
     <div className="container mx-auto px-4 py-8">

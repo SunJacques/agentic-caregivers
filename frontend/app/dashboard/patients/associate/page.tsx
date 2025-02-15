@@ -192,17 +192,40 @@ export default function AssociatePatient() {
   }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    // Here you would typically send the association data to your API
-    console.log("Patient-Agent Association:", {
-      patient: selectedPatient,
-      agent: selectedAgent,
-      medicalRecordFile,
-      callFrequency,
-    })
-    // Redirect to the patients list page after association
-    router.push("/dashboard/patients")
-  }
+    e.preventDefault();
+    
+    if (!selectedPatient || !selectedAgent || !medicalRecordFile || !callFrequency) {
+        alert("Please fill out all fields before submitting.");
+        return;
+    }
+
+    try {
+        const formData = new FormData();
+        formData.append('userId', selectedPatient.id);  // Assuming patient ID is used as userId
+        formData.append('userName', selectedPatient.name);
+        formData.append('text', `Patient ${selectedPatient.name} is now associated with agent ${selectedAgent.name}`);
+        if (medicalRecordFile) {
+            formData.append('file', medicalRecordFile);
+        }
+
+        // Call your backend API to send data to the agent message API
+        const response = await fetch(`/api/message/${selectedAgent.id}`, {
+            method: 'POST',
+            body: formData,
+        });
+
+        if (response.ok) {
+            console.log('Association successful');
+            router.push("/dashboard/patients");
+        } else {
+            const errorData = await response.json();
+            alert(errorData.error || "An error occurred");
+        }
+    } catch (error) {
+        console.error("Error associating patient with agent:", error);
+    }
+};
+
 
   return (
     <DndProvider backend={HTML5Backend}>

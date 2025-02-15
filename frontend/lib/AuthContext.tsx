@@ -4,6 +4,7 @@ import type React from "react"
 import { createContext, useState, useEffect, useContext, useMemo } from "react"
 import type { User } from "@supabase/supabase-js"
 import { createBrowserSupabaseClient } from "./supabase"
+import { UUID } from "crypto"
 
 type AuthContextType = {
   user: User | null
@@ -50,7 +51,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const getUserId = async () => {
     const { data, error } = await supabase.auth.getUser()
     if (error) throw error
-    return data.user.id
+    return data.user.id as UUID;
   }
 
   const signUp = async (email: string, password: string) => {

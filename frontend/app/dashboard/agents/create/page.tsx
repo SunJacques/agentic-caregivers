@@ -16,6 +16,7 @@ import { useAuth } from "@/lib/AuthContext"
 
 type Agent = {
   name: string
+  description: string
   modelProvider: string
   settings: {
     voice: {
@@ -39,6 +40,7 @@ type Agent = {
 const presetAgents: Agent[] = [
   {
     name: "Cardiac Care Specialist",
+    description: "An AI specialist focused on post-operative cardiac care and patient monitoring, providing expert guidance and support for heart health.",
     modelProvider: "openai",
     settings: {
       voice: {
@@ -76,16 +78,6 @@ const presetAgents: Agent[] = [
             text: "I understand your concern. Chest discomfort after cardiac surgery can be normal, but it's important we assess it properly. Can you describe the discomfort in more detail? Is it sharp or dull? Constant or intermittent? This information will help me determine if we need to alert your healthcare provider immediately.",
           },
         },
-        {
-          user: "{{user1}}",
-          content: { text: "It's a dull ache that comes and goes." },
-        },
-        {
-          user: "Cardiac Care Specialist",
-          content: {
-            text: "Thank you for that description. A dull, intermittent ache can be part of the normal healing process, but we'll monitor it closely. Let's check your latest vital signs and pain levels. If there are no concerning changes, try some deep breathing exercises. If the discomfort worsens or you experience any shortness of breath, alert us immediately. Your safety is our top priority.",
-          },
-        },
       ],
     ],
     postExamples: [
@@ -101,6 +93,7 @@ const presetAgents: Agent[] = [
   },
   {
     name: "Pediatric Care Assistant",
+    description: "A specialized AI assistant for pediatric care, focusing on child development, health monitoring, and parent support.",
     modelProvider: "groq",
     settings: {
       voice: {
@@ -138,16 +131,6 @@ const presetAgents: Agent[] = [
             text: "I understand your concern about your toddler's eating habits. It's common for 2-year-olds to be picky eaters. Can you tell me more about what your child is eating and refusing? Also, has there been any recent changes in their routine or environment?",
           },
         },
-        {
-          user: "{{user1}}",
-          content: { text: "They mostly refuse vegetables and new foods. No major changes recently." },
-        },
-        {
-          user: "Pediatric Care Assistant",
-          content: {
-            text: "Thank you for the information. Picky eating is a normal phase for many toddlers. Here are some strategies you can try: 1) Offer a variety of colorful foods. 2) Make mealtime fun and involve your child in food preparation. 3) Be patient and continue offering new foods alongside familiar ones. 4) Ensure a consistent eating schedule. If you notice any weight loss or signs of malnutrition, please consult your pediatrician promptly.",
-          },
-        },
       ],
     ],
     postExamples: [
@@ -163,6 +146,7 @@ const presetAgents: Agent[] = [
   },
   {
     name: "Mental Health Counselor",
+    description: "An empathetic AI counselor providing mental health support, guidance, and therapeutic assistance.",
     modelProvider: "anthropic",
     settings: {
       voice: {
@@ -197,24 +181,14 @@ const presetAgents: Agent[] = [
         {
           user: "Mental Health Counselor",
           content: {
-            text: "I'm sorry to hear you're experiencing anxiety. It's a common feeling, but it can be distressing. Can you tell me more about when you notice this anxiety? Are there any specific situations or thoughts that seem to trigger it?",
-          },
-        },
-        {
-          user: "{{user1}}",
-          content: { text: "It seems to happen most often when I'm at work or thinking about my job." },
-        },
-        {
-          user: "Mental Health Counselor",
-          content: {
-            text: "Thank you for sharing that. It sounds like your work environment or job-related thoughts might be contributing to your anxiety. Let's explore this a bit more. Can you identify any specific aspects of your job that worry you? In the meantime, I'd like to teach you a simple breathing technique that can help manage anxiety in the moment. Would you be interested in learning it?",
+            text: "I hear you, and it's completely valid to feel uncertain about your anxiety. Let's explore this together. Can you tell me more about when you typically notice these feelings? Are there any particular situations or times of day when it feels more intense?",
           },
         },
       ],
     ],
     postExamples: [
       "Remember, self-care isn't selfish. Taking time for yourself can significantly improve your mental well-being. Try incorporating one small act of self-care into your daily routine this week.",
-      "Feeling overwhelmed? Try the 5-4-3-2-1 grounding technique: Identify 5 things you can see, 4 things you can touch, 3 things you can hear, 2 things you can smell, and 1 thing you can taste. This can help bring you back to the present moment.",
+      "Feeling overwhelmed? Try the 5-4-3-2-1 grounding technique: Identify 5 things you can see, 4 things you can touch, 3 things you can hear, 2 things you can smell, and 1 thing you can taste.",
     ],
     style: {
       all: ["Empathetic", "Non-judgmental", "Supportive", "Professional", "Patient-focused"],
@@ -225,6 +199,7 @@ const presetAgents: Agent[] = [
   },
   {
     name: "Nutrition Coach",
+    description: "A comprehensive AI nutrition coach offering personalized dietary guidance, meal planning, and healthy lifestyle support.",
     modelProvider: "cohere",
     settings: {
       voice: {
@@ -254,29 +229,19 @@ const presetAgents: Agent[] = [
       [
         {
           user: "{{user1}}",
-          content: { text: "I want to lose weight but I'm not sure where to start with my diet." },
+          content: { text: "I want to improve my diet but don't know where to start." },
         },
         {
           user: "Nutrition Coach",
           content: {
-            text: "I'm glad you're taking steps towards a healthier lifestyle. Weight loss involves creating a calorie deficit, but it's important to do so in a healthy, sustainable way. Let's start by looking at your current eating habits. Can you describe what you typically eat in a day?",
-          },
-        },
-        {
-          user: "{{user1}}",
-          content: { text: "I usually skip breakfast, have a sandwich for lunch, and then a big dinner with some snacks in between." },
-        },
-        {
-          user: "Nutrition Coach",
-          content: {
-            text: "Thank you for sharing that. It sounds like we have some opportunities to improve your eating pattern. Skipping breakfast can often lead to overeating later in the day. Let's start by adding a nutritious breakfast to your routine. How about we try incorporating a protein-rich breakfast, like Greek yogurt with berries and nuts, or a veggie omelet? This can help stabilize your blood sugar and reduce cravings throughout the day. We'll also work on balancing your meals and choosing healthier snack options. Would you like some easy breakfast recipes to get started?",
+            text: "Making changes to your diet can feel overwhelming, but we can break it down into manageable steps. Let's start by understanding your current eating habits and goals. Could you tell me about what you typically eat in a day?",
           },
         },
       ],
     ],
     postExamples: [
-      "Did you know that adding colorful vegetables to your plate isn't just visually appealing, but also ensures you're getting a wide range of nutrients? Try to include at least 3 different colored vegetables in your meals today!",
       "Meal prep tip: Spend an hour on Sunday preparing healthy snacks for the week. Cut up veggies, portion out nuts, or make some homemade hummus. Having these ready-to-go options can prevent unhealthy snacking when you're short on time.",
+      "Remember, sustainable nutrition isn't about perfect eating - it's about making consistent, healthy choices most of the time. Aim for progress, not perfection!",
     ],
     style: {
       all: ["Informative", "Encouraging", "Practical", "Supportive", "Health-focused"],
@@ -341,14 +306,6 @@ export default function CreateAgentPage() {
         settings: editedAgent.settings,
         modelProvider: editedAgent.modelProvider
       }
-      
-      console.log('User ID:', userID)
-
-      console.log('Configuration:', configuration)
-
-      console.log('Agent:', editedAgent)
-
-      console.log('Agent name:', editedAgent.name)
 
       // Insert the new agent into Supabase
       const { data, error } = await supabase
@@ -356,6 +313,7 @@ export default function CreateAgentPage() {
         .insert([
           {
             name: editedAgent.name,
+            description: editedAgent.description,
             active: true,
             configuration: configuration,
             type: 'custom', // You can modify this based on your needs
@@ -380,7 +338,7 @@ export default function CreateAgentPage() {
 
   const handleTabChange = (value: string) => {
     setCreationMethod(value as "preset" | "scratch")
-    setEditedAgent(creationMethod === "scratch" ? { name: "", modelProvider: "groq", settings: { voice: { model: "" } }, bio: [], lore: [], knowledge: [], messageExamples: [], postExamples: [], style: { all: [], chat: [], post: [] }, adjectives: [] } : null)
+    setEditedAgent(creationMethod === "scratch" ? { name: "", description: "", modelProvider: "groq", settings: { voice: { model: "" } }, bio: [], lore: [], knowledge: [], messageExamples: [], postExamples: [], style: { all: [], chat: [], post: [] }, adjectives: [] } : null)
   }
 
   return (
@@ -453,6 +411,20 @@ export default function CreateAgentPage() {
                       required
                     />
                   </div>
+
+                  {/* Add description field */}
+                <div className="space-y-2">
+                  <Label htmlFor="description">{t("description")}</Label>
+                  <Textarea
+                    id="description"
+                    name="description"
+                    value={editedAgent?.description || ""}
+                    onChange={handleInputChange}
+                    rows={3}
+                    disabled={!isEditing}
+                    required
+                  />
+                </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="modelProvider">{t("modelProvider")}</Label>
