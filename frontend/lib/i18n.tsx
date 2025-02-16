@@ -173,7 +173,7 @@ export const I18NProvider: React.FC<I18NProviderProps> = ({ children }) => {
 
           // Landing
           login: "Log In",
-          heroTitle: "AI-Powered Post-Operative Care",
+          heroTitle: "AI-Powered Post-Hospital Care",
           heroSubtitle: "Revolutionizing patient follow-up with intelligent AI agents",
           getStarted: "Get Started",
           intelligentAIAgents: "Intelligent AI Agents",
