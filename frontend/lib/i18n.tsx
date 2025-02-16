@@ -32,23 +32,20 @@ export const I18NProvider: React.FC<I18NProviderProps> = ({ children }) => {
   const router = useRouter()
 
   useEffect(() => {
-    const savedLocale = localStorage.getItem("locale") as Locale
+    const savedLocale = localStorage.getItem("locale") as Locale;
     if (savedLocale && (savedLocale === "en" || savedLocale === "fr")) {
-      setLocale(savedLocale)
+      setLocale(savedLocale);
     } else {
-      setLocale("en")
-      localStorage.setItem("locale", "en")
+      setLocale("en");
+      localStorage.setItem("locale", "en");
     }
-  }, [])
+  }, []);
 
-  const changeLocale = useCallback(
-    (newLocale: Locale) => {
-      setLocale(newLocale)
-      localStorage.setItem("locale", newLocale)
-      router.refresh()
-    },
-    [router],
-  )
+  const changeLocale = useCallback((newLocale: Locale) => {
+    setLocale(newLocale);
+    localStorage.setItem("locale", newLocale);
+    router.refresh(); // Refresh content without modifying URL
+  }, [router]);
 
   const t = useCallback(
     (key: string): string => {
@@ -418,6 +415,10 @@ export const I18NProvider: React.FC<I18NProviderProps> = ({ children }) => {
     [locale],
   )
 
-  return <I18NContext.Provider value={{ locale, setLocale: changeLocale, t }}>{children}</I18NContext.Provider>
+  return (
+    <I18NContext.Provider value={{ locale, setLocale: changeLocale, t }}>
+      {children}
+    </I18NContext.Provider>
+  );
 }
 
