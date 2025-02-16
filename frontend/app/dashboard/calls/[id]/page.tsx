@@ -54,10 +54,25 @@ const downloadTranscript = (transcript: { speaker: string; text: string }[]) => 
   URL.revokeObjectURL(url)
 }
 
+function getSummaryDetails() {
+  return {
+    summary: [
+      { label: "General condition", value: "Patient reports feeling tired but otherwise okay." },
+      { label: "Medications", value: "Taken as prescribed in the morning." },
+      { label: "Energy levels", value: "Rated 6/10, lower than usual but still functional." },
+      { label: "Symptoms", value: "No shortness of breath or chest discomfort." },
+      { label: "Diet", value: "Following the prescribed plan and finding it helpful." },
+      { label: "Additional notes", value: "Discussion on exercise routine initiated." },
+    ]
+  }
+}
+
 export default function CallDetails() {
   const { t } = useI18N()
   const params = useParams()
   const call = getCallDetails(params.id as string)
+
+  const summary = getSummaryDetails(); // Get the summary details
 
   if (!call) {
     // You can handle the not found case here
@@ -72,6 +87,18 @@ export default function CallDetails() {
           {t("backToCallList")}
         </Link>
         <h1 className="text-3xl font-bold">{t("callDetails")}</h1>
+      </div>
+
+      {/* Display the summary */}
+      <div className="p-4 border rounded-md bg-white">
+        <h2 className="text-lg font-semibold mb-4">Summary</h2>
+        <ul className="list-disc pl-5 space-y-2">
+          {summary.summary.map((item, index) => (
+            <li key={index} className="text-gray-700">
+              <strong>{item.label}:</strong> {item.value}
+            </li>
+          ))}
+        </ul>
       </div>
 
       <Card>
@@ -155,4 +182,3 @@ export default function CallDetails() {
     </div>
   )
 }
-
