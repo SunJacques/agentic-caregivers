@@ -57,12 +57,7 @@ const downloadTranscript = (transcript: { speaker: string; text: string }[]) => 
 function getSummaryDetails() {
   return {
     summary: [
-      { label: "General condition", value: "Patient reports feeling tired but otherwise okay." },
-      { label: "Medications", value: "Taken as prescribed in the morning." },
-      { label: "Energy levels", value: "Rated 6/10, lower than usual but still functional." },
-      { label: "Symptoms", value: "No shortness of breath or chest discomfort." },
-      { label: "Diet", value: "Following the prescribed plan and finding it helpful." },
-      { label: "Additional notes", value: "Discussion on exercise routine initiated." },
+      { label: "Condition", value: "Patient reports mild fatigue, otherwise stable." }, { label: "Medications", value: "Administered as per prescription, morning dose." }, { label: "Energy", value: "6/10, reduced from baseline but functional." }, { label: "Symptoms", value: "No dyspnea or chest discomfort." }, { label: "Diet", value: "Adhering to prescribed nutritional plan, beneficial." }, { label: "Exercise", value: "Discussion on exercise regimen initiated." }
     ]
   }
 }
