@@ -18,7 +18,7 @@ graph TD
     end
 
     subgraph AI Agent Operations
-        B -->|Generates Specific AI Agent| C[AI Agent]
+        B -->|Generates Specific AI Agent| C[AI Agent via ElizaOS]
         C -->|Performs Web Research| D[Web Resources]
         C -->|Utilizes RAG Model| E[Retrieval-Augmented Generation]
         E -->|Stored/Retrieved from| G[Supabase Database]
@@ -85,3 +85,5 @@ graph TD
 
 ## Conclusion
 This AI-driven system streamlines doctor-patient interactions, automates record-keeping, and enhances patient safety through **real-time alerts and recommendations**, ultimately improving healthcare outcomes.
+
+**Powered by <img src="https://github.com/user-attachments/assets/a19c37cf-fbe7-421b-afeb-01dc37739136" height="20" /> ElizaOS**
