@@ -2,13 +2,11 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Home, Users, Bell, Bot, Phone, LogOut } from "lucide-react"
+import { Home, Users, Bell, Bot, Phone } from "lucide-react"
 import type React from "react"
 import { useI18N, I18NProvider } from "@/lib/i18n"
 import LanguageSwitcher from "@/components/LanguageSwitcher"
-import { useAuth } from "@/lib/AuthContext"
-import { useRouter } from "next/navigation"
-import { useEffect } from "react"
+
 import Image from "next/image"
 
 const navItems = [
@@ -21,13 +19,6 @@ const navItems = [
 
 const DashboardNavigation = () => {
   const { t } = useI18N()
-  const { signOut } = useAuth()
-  const router = useRouter()
-
-  const handleSignOut = async () => {
-    await signOut()
-    router.push("/login")
-  }
 
   return (
     <nav className="space-y-2">
@@ -39,10 +30,7 @@ const DashboardNavigation = () => {
           </Button>
         </Link>
       ))}
-      <Button variant="ghost" className="w-full justify-start text-red-600" onClick={handleSignOut}>
-        <LogOut className="mr-2 h-4 w-4" />
-        {t("logout")}
-      </Button>
+
     </nav>
   )
 }
@@ -52,18 +40,6 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
-  const { user } = useAuth()
-  const router = useRouter()
-
-  useEffect(() => {
-    if (!user) {
-      router.push("/login")
-    }
-  }, [user, router])
-
-  if (!user) {
-    return null
-  }
 
   return (
     <I18NProvider>

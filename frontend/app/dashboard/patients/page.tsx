@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ArrowLeft, User, Plus } from "lucide-react"
 import { useI18N } from "@/lib/i18n"
-import { useAuth } from "@/lib/AuthContext"
+
 import { useEffect, useState } from "react"
 
 // Mock patient data
@@ -50,7 +50,7 @@ const mockPatients = [
 
 export default function PatientsPage() {
   const { t } = useI18N()
-  const { getUserId } = useAuth()
+
 
   const [patients, setPatients] = useState<any[]>([])
   const [loading, setLoading] = useState(true)

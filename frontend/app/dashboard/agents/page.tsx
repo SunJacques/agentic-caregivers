@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { PlusCircle, Bot, Brain, Activity, ArrowLeft } from "lucide-react"
 import { useI18N } from "@/lib/i18n"
 import { useEffect, useState } from "react"
-import { useAuth } from "@/lib/AuthContext"
+
 
 // Mock data for agents
 const mockAgents = [
@@ -39,7 +39,7 @@ const mockAgents = [
 export default function AgentsPage() {
   const { t } = useI18N()
   const [agents, setAgents] = useState<any[]>([])
-  const { getUserId } = useAuth()
+
 
   useEffect(() => {
     // Instead of fetching from Supabase, use the mock data
