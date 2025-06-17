@@ -1,9 +1,10 @@
 const nextConfig = {
   reactStrictMode: true,
-  i18n: {
-    locales: ["en", "fr"],
-    defaultLocale: "en",
-  },
+  // Temporarily disable i18n to fix redirect issues
+  // i18n: {
+  //   locales: ["en", "fr"],
+  //   defaultLocale: "en",
+  // },
   eslint: {
       ignoreDuringBuilds: true,
   },
