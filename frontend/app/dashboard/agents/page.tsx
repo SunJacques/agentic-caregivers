@@ -5,29 +5,36 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { PlusCircle, Bot, Brain, Activity, ArrowLeft } from "lucide-react"
 import { useI18N } from "@/lib/i18n"
-import { createBrowserSupabaseClient } from "@/lib/supabase"
 import { useEffect, useState } from "react"
 import { useAuth } from "@/lib/AuthContext"
 
-// Fetch agents for the user
-const getAgentsForUser = async (userId: string) => {
-  if (!userId) return []
-
-  const supabase = createBrowserSupabaseClient()
-  console.log("Fetching agents for user:", userId)
-
-  const { data: supabaseData, error } = await supabase
-    .from("agents")
-    .select("*")
-    .eq("docuuid", userId)
-
-  if (error) {
-    console.error("Supabase error:", error)
-    return []
+// Mock data for agents
+const mockAgents = [
+  {
+    id: "1",
+    name: "Patient Follow-up Bot",
+    description: "Automated follow-up with patients after hospital discharge",
+    type: "Follow-up",
+    patientCount: 24,
+    alertsToday: 3
+  },
+  {
+    id: "2",
+    name: "Medication Reminder",
+    description: "Reminds patients about their medication schedule",
+    type: "Reminder",
+    patientCount: 42,
+    alertsToday: 7
+  },
+  {
+    id: "3",
+    name: "Appointment Scheduler",
+    description: "Helps patients schedule and manage appointments",
+    type: "Scheduling",
+    patientCount: 18,
+    alertsToday: 0
   }
-
-  return supabaseData || []
-}
+]
 
 export default function AgentsPage() {
   const { t } = useI18N()
@@ -35,14 +42,8 @@ export default function AgentsPage() {
   const { getUserId } = useAuth()
 
   useEffect(() => {
-    const fetchAgents = async () => {
-      const userId = await getUserId()
-      if (userId) {
-        const agentsData = await getAgentsForUser(userId)
-        setAgents(agentsData)
-      }
-    }
-    fetchAgents()
+    // Instead of fetching from Supabase, use the mock data
+    setAgents(mockAgents)
   }, [])
 
   return (

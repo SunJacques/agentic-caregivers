@@ -1,10 +1,13 @@
 "use client"
 
 import type React from "react"
-import { createContext, useState, useEffect, useContext, useMemo } from "react"
-import type { User } from "@supabase/supabase-js"
-import { createBrowserSupabaseClient } from "./supabase"
-import { UUID } from "crypto"
+import { createContext, useState, useContext, useMemo } from "react"
+
+// Define a simplified User type since we're no longer using Supabase
+type User = {
+  id: string;
+  email: string;
+}
 
 type AuthContextType = {
   user: User | null
@@ -17,58 +20,58 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null)
-  const supabase = createBrowserSupabaseClient()
-
-  useEffect(() => {
-    const initAuth = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession() // Use session instead of user
-      setUser(session?.user ?? null)
-  
-      const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-        setUser(session?.user ?? null)
-      })
-  
-      return () => {
-        authListener.subscription.unsubscribe()
-      }
+  const [user, setUser] = useState<User | null>(() => {
+    // Check if we have a user in localStorage when the component mounts
+    if (typeof window !== 'undefined') {
+      const storedUser = localStorage.getItem('mockUser')
+      return storedUser ? JSON.parse(storedUser) : null
     }
-  
-    initAuth()
-  }, [supabase.auth])
+    return null
+  })
 
-  const signIn = async (email: string, password: string) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
-    if (error) throw error
-    setUser(data.user)
+  // Sample ID to use for all users
+  const sampleID = "123e4567-e89b-12d3-a456-426614174000"
+
+  const signIn = async (email: string, _password: string) => {
+    // Accept any email/password combination
+    const mockUser = {
+      id: sampleID,
+      email: email,
+    }
+    
+    // Store user in state and localStorage
+    setUser(mockUser)
+    localStorage.setItem('mockUser', JSON.stringify(mockUser))
   }
 
   const getUserId = async () => {
-    const { data, error } = await supabase.auth.getUser()
-    if (error) throw error
-    return data.user.id as UUID;
+    if (!user) {
+      throw new Error("No user is logged in")
+    }
+    return user.id
   }
 
-  const signUp = async (email: string, password: string) => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-    })
-    if (error) throw error
-    setUser(data.user)
+  const signUp = async (email: string, _password: string) => {
+    // Same as signIn for this mock implementation
+    const mockUser = {
+      id: sampleID,
+      email: email,
+    }
+    
+    setUser(mockUser)
+    localStorage.setItem('mockUser', JSON.stringify(mockUser))
   }
 
   const signOut = async () => {
-    await supabase.auth.signOut()
     setUser(null)
+    localStorage.removeItem('mockUser')
   }
 
-  const value = useMemo(() => ({ user, signIn, signUp, signOut, getUserId }), [user, signIn, signUp, signOut, getUserId])
+  const value = useMemo(
+    () => ({ user, signIn, signUp, signOut, getUserId }), 
+    [user]
+  )
+  
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
@@ -79,4 +82,3 @@ export const useAuth = () => {
   }
   return context
 }
-

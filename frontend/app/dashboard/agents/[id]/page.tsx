@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
@@ -8,12 +8,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useI18N } from "@/lib/i18n";
-import { createBrowserSupabaseClient } from "@/lib/supabase";
 import { useAuth } from "@/lib/AuthContext";
-import { UUID } from "crypto";
 
 type Agent = {
-  id: UUID;
+  id: string;
   name: string;
   type: string;
   description: string;
@@ -23,7 +21,7 @@ type Agent = {
 };
 
 type Patient = {
-  id: UUID;
+  id: string;
   name: string;
   dateOfBirth: string;
   lastContact: string;
@@ -45,6 +43,100 @@ type Alert = {
   severity: "Low" | "Medium" | "High";
   status: "Open" | "Resolved";
 };
+
+// Mock data
+const mockAgents: Record<string, Agent> = {
+  "1": {
+    id: "1",
+    name: "Patient Follow-up Bot",
+    type: "Follow-up",
+    description: "Automated follow-up with patients after hospital discharge to ensure proper recovery and medication adherence.",
+    capabilities: [
+      "Send automated follow-up messages",
+      "Schedule check-in calls",
+      "Alert medical staff of concerning symptoms",
+      "Track recovery progress"
+    ],
+    assignedPatients: 24,
+    callsMade: 156
+  },
+  "2": {
+    id: "2",
+    name: "Medication Reminder",
+    type: "Reminder",
+    description: "Reminds patients about their medication schedule and tracks adherence.",
+    capabilities: [
+      "Send medication reminders",
+      "Track medication adherence",
+      "Alert medical staff of missed doses",
+      "Provide medication information"
+    ],
+    assignedPatients: 42,
+    callsMade: 312
+  },
+  "3": {
+    id: "3",
+    name: "Appointment Scheduler",
+    type: "Scheduling",
+    description: "Helps patients schedule and manage appointments with healthcare providers.",
+    capabilities: [
+      "Schedule appointments",
+      "Send appointment reminders",
+      "Reschedule appointments",
+      "Cancel appointments"
+    ],
+    assignedPatients: 18,
+    callsMade: 87
+  }
+};
+
+const mockPatients: Patient[] = [
+  {
+    id: "p1",
+    name: "John Doe",
+    dateOfBirth: "1980-05-15",
+    lastContact: "2023-04-02",
+    status: "Stable"
+  },
+  {
+    id: "p2",
+    name: "Jane Smith",
+    dateOfBirth: "1975-11-23",
+    lastContact: "2023-04-01",
+    status: "Needs Attention"
+  },
+  {
+    id: "p3",
+    name: "Robert Johnson",
+    dateOfBirth: "1990-03-08",
+    lastContact: "2023-03-28",
+    status: "Critical"
+  }
+];
+
+const mockAlerts: Alert[] = [
+  {
+    id: "a1",
+    patientName: "Jane Smith",
+    type: "Missed Medication",
+    severity: "Medium",
+    status: "Open"
+  },
+  {
+    id: "a2",
+    patientName: "Robert Johnson",
+    type: "Concerning Symptoms",
+    severity: "High",
+    status: "Open"
+  },
+  {
+    id: "a3",
+    patientName: "John Doe",
+    type: "Appointment Missed",
+    severity: "Low",
+    status: "Resolved"
+  }
+];
 
 const AgentStatisticsCard = ({ assignedPatients, callsMade }: { assignedPatients: number, callsMade: number }) => (
   <Card>
@@ -112,7 +204,7 @@ const PatientTable = ({ patients, router, t }: { patients: Patient[], router: an
                       : "bg-red-200 text-red-800"
                   }`}
                 >
-                  {t(`patients.status.${patient.status}`)}
+                  {patient.status}
                 </span>
               </TableCell>
               <TableCell>
@@ -132,7 +224,6 @@ const PatientTable = ({ patients, router, t }: { patients: Patient[], router: an
     </CardContent>
   </Card>
 );
-
 
 const AlertTable = ({ alerts, router, t }: { alerts: Alert[], router: any, t: any }) => (
   <Card className="mb-8 shadow-lg">
@@ -172,7 +263,7 @@ const AlertTable = ({ alerts, router, t }: { alerts: Alert[], router: any, t: an
                       : "bg-red-200 text-red-800"
                   }`}
                 >
-                  {t(`common.severity.${alert.severity}`)}
+                  {alert.severity}
                 </span>
               </TableCell>
               <TableCell>
@@ -181,7 +272,7 @@ const AlertTable = ({ alerts, router, t }: { alerts: Alert[], router: any, t: an
                     alert.status === "Open" ? "bg-blue-200 text-blue-800" : "bg-gray-200 text-gray-800"
                   }`}
                 >
-                  {t(`common.status.${alert.status}`)}
+                  {alert.status}
                 </span>
               </TableCell>
               <TableCell>
@@ -202,7 +293,6 @@ const AlertTable = ({ alerts, router, t }: { alerts: Alert[], router: any, t: an
   </Card>
 );
 
-
 export default function AgentDetailsPage() {
   const router = useRouter();
   const { t } = useI18N();
@@ -211,115 +301,83 @@ export default function AgentDetailsPage() {
 
   const [agent, setAgent] = useState<Agent | null>(null);
   const [patients, setPatients] = useState<Patient[]>([]);
-  const [activities, setActivities] = useState<Activity[]>([]);
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);
-  const [timeRange, setTimeRange] = useState("week");
 
   useEffect(() => {
-    const fetchAgentData = async () => {
-      setLoading(true);  // Set loading to true initially
-      const supabase = createBrowserSupabaseClient();
-      const userID = await getUserId() as UUID;
-  
+    // Instead of fetching from Supabase, use the mock data
+    const loadMockData = () => {
+      setLoading(true);
       try {
-        const { data: agentData, error: agentError } = await supabase
-          .from("agents")
-          .select("*")
-          .eq("docuuid", userID)
-          .eq("id", id)
-          .single();
-  
-        if (agentError) throw new Error(agentError.message);
-  
-        if (agentData) {
-          setAgent(agentData);
+        // Get agent data from mock
+        const agentId = Array.isArray(id) ? id[0] : id;
+        const mockAgent = mockAgents[agentId as string];
+        
+        if (mockAgent) {
+          setAgent(mockAgent);
+          setPatients(mockPatients);
+          setAlerts(mockAlerts);
         }
-  
-        const { data: patientsData } = await supabase
-          .from("patients")
-          .select("*")
-          .eq("assignedAgentId", id);
-  
-        setPatients(patientsData || []);
-  
-        const { data: activitiesData } = await supabase
-          .from("activities")
-          .select("*")
-          .eq("agentId", id);
-  
-        setActivities(activitiesData || []);
-  
-        const { data: alertsData } = await supabase
-          .from("alerts")
-          .select("*")
-          .eq("agentId", id);
-  
-        setAlerts(alertsData || []);
       } catch (error) {
-        console.error("Error fetching agent data:", error);
+        console.error("Error loading mock data:", error);
       } finally {
-        setLoading(false);  // Set loading to false after fetching data
+        setLoading(false);
       }
     };
-  
-    if (id) {
-      fetchAgentData();
-    }
-  }, [id, getUserId]);
-  
+    
+    loadMockData();
+  }, [id]);
 
-  // if (loading) {
-  //   return <div className="container mx-auto px-4 py-8">Loading...</div>;
-  // }
+  if (loading) {
+    return <div className="container mx-auto px-4 py-8">Loading...</div>;
+  }
 
   if (!agent) {
     return <div className="container mx-auto px-4 py-8">Error fetching agent data.</div>;
   }
 
+  return (
+    <div className="container mx-auto px-8 py-12">
+      <Link href="/dashboard/agents" className="flex items-center mb-6 text-blue-500 hover:underline">
+        <ArrowLeft className="mr-2" />
+        {t("backToAgents")}
+      </Link>
+      <h1 className="text-4xl font-bold mb-10 flex items-center space-x-4">
+        <Bot className="h-8 w-8 text-blue-500" />
+        <span>{agent.name}</span>
+      </h1>
 
-    return (
-      <div className="container mx-auto px-8 py-12">
-        <Link href="/dashboard/agents" className="flex items-center mb-6 text-blue-500 hover:underline">
-          <ArrowLeft className="mr-2" />
-          {t("backToAgents")}
-        </Link>
-        <h1 className="text-4xl font-bold mb-10 flex items-center space-x-4">
-          <Bot className="h-8 w-8 text-blue-500" />
-          <span>{agent.name}</span>
-        </h1>
-  
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
-          <Card className="space-y-6 p-6">
-            <CardHeader>
-              <CardTitle className="flex items-center text-xl font-semibold">
-                <Brain className="mr-3 h-6 w-6 text-blue-500" />
-                {t("agentDetails")}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p>
-                <strong>{t("agentType")}:</strong> {agent.type}
-              </p>
-              <p>
-                <strong>{t("description")}:</strong> {agent.description}
-              </p>
-              <div>
-                <strong>{t("capabilities")}:</strong>
-                <ul className="list-disc list-inside space-y-2">
-                  {(agent.capabilities || []).map((capability, index) => (
-                    <li key={index}>{capability}</li>
-                  ))}
-                </ul>
-              </div>
-            </CardContent>
-          </Card>
-  
-          <AgentStatisticsCard assignedPatients={agent.assignedPatients} callsMade={agent.callsMade} />
-        </div>
-  
-        <PatientTable patients={patients} router={router} t={t} />
-        <AlertTable alerts={alerts} router={router} t={t} />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+        <Card className="space-y-6 p-6">
+          <CardHeader>
+            <CardTitle className="flex items-center text-xl font-semibold">
+              <Brain className="mr-3 h-6 w-6 text-blue-500" />
+              {t("agentDetails")}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p>
+              <strong>{t("agentType")}:</strong> {agent.type}
+            </p>
+            <p>
+              <strong>{t("description")}:</strong> {agent.description}
+            </p>
+            <div>
+              <strong>{t("capabilities")}:</strong>
+              <ul className="list-disc list-inside space-y-2">
+                {(agent.capabilities || []).map((capability, index) => (
+                  <li key={index}>{capability}</li>
+                ))}
+              </ul>
+            </div>
+          </CardContent>
+        </Card>
+
+        <AgentStatisticsCard assignedPatients={agent.assignedPatients} callsMade={agent.callsMade} />
       </div>
+
+      <PatientTable patients={patients} router={router} t={t} />
+      <AlertTable alerts={alerts} router={router} t={t} />
+    </div>
   );
 }

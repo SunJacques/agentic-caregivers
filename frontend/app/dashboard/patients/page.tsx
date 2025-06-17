@@ -6,49 +6,65 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ArrowLeft, User, Plus } from "lucide-react"
 import { useI18N } from "@/lib/i18n"
-import { createBrowserSupabaseClient } from "@/lib/supabase"
 import { useAuth } from "@/lib/AuthContext"
 import { useEffect, useState } from "react"
 
+// Mock patient data
+const mockPatients = [
+  {
+    id: "p1",
+    name: "John Doe",
+    date_of_birth: "1980-05-15",
+    condition: "Hypertension, Diabetes",
+    assigned_agent: "Patient Follow-up Bot"
+  },
+  {
+    id: "p2",
+    name: "Jane Smith",
+    date_of_birth: "1975-11-23",
+    condition: "Asthma",
+    assigned_agent: "Medication Reminder"
+  },
+  {
+    id: "p3",
+    name: "Robert Johnson",
+    date_of_birth: "1990-03-08",
+    condition: "Post-Surgery Recovery",
+    assigned_agent: "Patient Follow-up Bot"
+  },
+  {
+    id: "p4",
+    name: "Emily Davis",
+    date_of_birth: "1988-07-12",
+    condition: "Pregnancy",
+    assigned_agent: "Appointment Scheduler"
+  },
+  {
+    id: "p5",
+    name: "Michael Wilson",
+    date_of_birth: "1965-09-30",
+    condition: "Heart Disease",
+    assigned_agent: "Medication Reminder"
+  }
+];
+
 export default function PatientsPage() {
   const { t } = useI18N()
-  const { getUserId } = useAuth() // Assuming this returns the userID
-  const supabase = createBrowserSupabaseClient()
+  const { getUserId } = useAuth()
 
   const [patients, setPatients] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    const fetchPatients = async () => {
-      const userID = await getUserId()
-      
-      if (!userID) {
-        setError("User not authenticated")
-        setLoading(false)
-        return
-      }
+    // Simulate loading delay
+    const timer = setTimeout(() => {
+      setPatients(mockPatients);
+      setLoading(false);
+    }, 800);
 
-      try {
-        const { data, error } = await supabase
-          .from("patients")
-          .select("*")
-          .eq("docuuid", userID)
-
-        if (error) {
-          setError(error.message)
-        } else {
-          setPatients(data)
-        }
-      } catch {
-        setError("Failed to fetch patients")
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchPatients()
-  }, [getUserId, supabase])
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div className="container mx-auto px-4 py-8">
