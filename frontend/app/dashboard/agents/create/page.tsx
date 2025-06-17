@@ -11,7 +11,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ArrowLeft, Pencil, Check, Plus, Wand2 } from "lucide-react"
 import { useI18N } from "@/lib/i18n"
-import { createBrowserSupabaseClient } from "@/lib/supabase"
 import { useAuth } from "@/lib/AuthContext"
 
 type Agent = {
@@ -289,11 +288,11 @@ export default function CreateAgentPage() {
     e.preventDefault()
     if (!editedAgent) return
 
-    const supabase = createBrowserSupabaseClient()
     const userID = await getUserId()
 
     setIsSubmitting(true)
     try {
+      // Simulate agent creation (no database operations)
       // Create the configuration object that matches the schema
       const configuration = {
         bio: editedAgent.bio,
@@ -307,24 +306,17 @@ export default function CreateAgentPage() {
         modelProvider: editedAgent.modelProvider
       }
 
-      // Insert the new agent into Supabase
-      const { data, error } = await supabase
-        .from('agents')
-        .insert([
-          {
-            name: editedAgent.name,
-            description: editedAgent.description,
-            active: true,
-            configuration: configuration,
-            type: 'custom', // You can modify this based on your needs
-            docuuid: userID,
-          }
-        ])
-        .select()
+      // Simulate a delay for better UX
+      await new Promise(resolve => setTimeout(resolve, 1500))
 
-      if (error) throw error
-
-      console.log('Agent created:', data)
+      console.log('Agent would be created:', {
+        name: editedAgent.name,
+        description: editedAgent.description,
+        active: true,
+        configuration: configuration,
+        type: 'custom',
+        docuuid: userID,
+      })
 
       // Redirect to the agents list page after successful creation
       router.push('/dashboard/agents')

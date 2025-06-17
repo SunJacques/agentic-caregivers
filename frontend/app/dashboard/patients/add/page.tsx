@@ -14,25 +14,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowLeft, UserPlus } from "lucide-react"
 import { useI18N } from "@/lib/i18n"
-import { createBrowserSupabaseClient } from "@/lib/supabase"
-import { useAuth } from "@/lib/AuthContext"
-
 export default function AddPatient() {
   const router = useRouter()
   const { t } = useI18N()
-  const supabase = createBrowserSupabaseClient()
-  const { getUserId } = useAuth()
-
-  const [userID, setUserID] = useState<string | null>(null)
-
-  useEffect(() => {
-    const fetchUserID = async () => {
-      const id = await getUserId()
-      setUserID(id)
-    }
-
-    fetchUserID()
-  }, [getUserId])
 
   const [patient, setPatient] = useState({
     name: "",
@@ -64,27 +48,28 @@ export default function AddPatient() {
     setLoading(true)
     setError(null)
 
-    const { data, error } = await supabase
-      .from("patients")
-      .insert([{
-        docuuid: userID,
+    // Simulate patient creation (no database operations)
+    try {
+      // Simulate a small delay for better UX
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      console.log("Patient would be created:", {
         name: patient.name,
         date_of_birth: patient.dateOfBirth,
         gender: patient.gender,
         contact_number: patient.contactNumber,
         email: patient.email,
         address: patient.address,
-      }])
-
-    if (error) {
-      console.error("Error adding patient:", error.message)
-      setError(error.message)
-    } else {
-      console.log("Patient created:", data)
-      router.push("/dashboard/patients") // Redirect to patients list
+      })
+      
+      // Redirect to patients list
+      router.push("/dashboard/patients")
+    } catch (error) {
+      console.error("Error:", error)
+      setError("An error occurred while creating the patient")
+    } finally {
+      setLoading(false)
     }
-
-    setLoading(false)
   }
 
   return (
